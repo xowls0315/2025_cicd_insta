@@ -1,0 +1,13 @@
+[
+  {
+    "name": "default",
+    "type": "postgres",
+    "host": "dpg-d4n54149c44c738h7150-a.singapore-postgres.render.com",
+    "port": 5432,
+    "username": "nick",
+    "password": "rTfkBzGA4aOMfymAeiBT0OTGQNAS8AIM",
+    "database": "",
+    "synchronize": false,
+    "entities": ["entities/*.js"]
+  }
+]
