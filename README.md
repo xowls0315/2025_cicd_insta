@@ -108,6 +108,42 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 - PostgreSQL 데이터베이스
 - Supabase 계정 (이미지 저장용)
 
+### Frontend 설정 (insta_front)
+
+1. **프로젝트 디렉토리로 이동**
+
+```bash
+cd insta_front
+```
+
+2. **의존성 설치**
+
+```bash
+npm install
+```
+
+3. **환경 변수 설정 (선택사항)**
+   `.env.local` 파일을 생성하고 백엔드 API URL을 설정하세요:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
+
+4. **개발 서버 실행**
+
+```bash
+npm run dev
+```
+
+프론트엔드는 기본적으로 `http://localhost:3000`에서 실행됩니다.
+
+5. **프로덕션 빌드**
+
+```bash
+npm run build
+npm start
+```
+
 ### Backend 설정 (insta_back)
 
 1. **프로젝트 디렉토리로 이동**
@@ -166,43 +202,7 @@ npm run build
 npm run start:prod
 ```
 
-서버는 기본적으로 `http://localhost:3000`에서 실행됩니다.
-
-### Frontend 설정 (insta_front)
-
-1. **프로젝트 디렉토리로 이동**
-
-```bash
-cd insta_front
-```
-
-2. **의존성 설치**
-
-```bash
-npm install
-```
-
-3. **환경 변수 설정 (선택사항)**
-   `.env.local` 파일을 생성하고 백엔드 API URL을 설정하세요:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3000
-```
-
-4. **개발 서버 실행**
-
-```bash
-npm run dev
-```
-
-프론트엔드는 기본적으로 `http://localhost:3001`에서 실행됩니다.
-
-5. **프로덕션 빌드**
-
-```bash
-npm run build
-npm start
-```
+서버는 기본적으로 `http://localhost:3001`에서 실행됩니다.
 
 ---
 
