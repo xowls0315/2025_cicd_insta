@@ -301,6 +301,68 @@ insta_back/
 └────────┘
 ```
 
+### SQL문
+```
+-- users 테이블
+CREATE TABLE IF NOT EXISTS users (
+  id            BIGSERIAL PRIMARY KEY,
+  username      VARCHAR(30)  NOT NULL UNIQUE,     -- "아이디"
+  nickname      VARCHAR(30)  NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  profile_image_url TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- refresh_tokens 테이블 (한 유저 여러 로그인 허용하려면 여러개 저장 가능)
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id            BIGSERIAL PRIMARY KEY,
+  user_id       BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash    VARCHAR(255) NOT NULL,
+  is_revoked    BOOLEAN NOT NULL DEFAULT FALSE,
+  expires_at    TIMESTAMPTZ NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON refresh_tokens(expires_at);
+
+CREATE TABLE IF NOT EXISTS feeds (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  photo_url TEXT NOT NULL,
+  description TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  
+  -- 외래키 제약조건
+  CONSTRAINT feeds_user_id_fkey 
+    FOREIGN KEY (user_id) 
+    REFERENCES users(id) 
+    ON DELETE CASCADE 
+    ON UPDATE CASCADE
+);
+
+-- 인덱스 생성
+CREATE INDEX IF NOT EXISTS feeds_user_id_fkey ON feeds(user_id);
+CREATE INDEX IF NOT EXISTS feeds_created_at_idx ON feeds(created_at DESC);
+
+-- updated_at 자동 업데이트 트리거 함수 (선택사항)
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 트리거 생성
+CREATE TRIGGER update_feeds_updated_at
+  BEFORE UPDATE ON feeds
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+```
+
 **테이블 관계:**
 
 - `users` : `feeds` = 1 : N (한 사용자는 여러 피드를 가질 수 있음)
