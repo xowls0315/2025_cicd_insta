@@ -1,4 +1,5 @@
 import { RefreshToken } from 'src/modules/auth/entities/refresh-token.entity';
+import { Feed } from 'src/modules/feeds/entities/feed.entity';
 import {
   Column,
   Entity,
@@ -39,4 +40,7 @@ export class User {
 
   @OneToMany(() => RefreshToken, (token) => token.user)
   refreshTokens: RefreshToken[];
+
+  @OneToMany(() => Feed, (feed) => feed.user)
+  feeds: Feed[];
 }

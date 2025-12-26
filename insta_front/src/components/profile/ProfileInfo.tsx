@@ -3,11 +3,12 @@ import type { User } from "@/types";
 
 interface ProfileInfoProps {
   user: User;
+  feedCount?: number;
 }
 
-export const ProfileInfo: React.FC<ProfileInfoProps> = ({ user }) => {
+export const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, feedCount = 0 }) => {
   const stats = [
-    { n: 0, label: "게시물" },
+    { n: feedCount, label: "게시물" },
     { n: 0, label: "팔로워" },
     { n: 0, label: "팔로잉" },
   ];
@@ -30,7 +31,7 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({ user }) => {
       {/* bio */}
       <div className="mt-4 rounded-2xl border border-black/10 bg-white/65 px-4 py-3">
         <div className="font-extrabold">내 프로필</div>
-        <div className="mt-1 text-black/70">Next.js + NestJS + Supabase로 만든 인스타 클론 ✨</div>
+        <div className="mt-1 text-black/70">Next.js + NestJS + Supabase로 만든 인스타 클론 바이브 코딩 ✨</div>
       </div>
     </div>
   );

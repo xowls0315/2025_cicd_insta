@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+/* 눈누 폰트 - 학교안심 날개 */
+@font-face {
+  font-family: "SchoolSafetyWing";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2511-1@1.0/HakgyoansimNalgaeR.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 기본 폰트 적용 */
+body {
+  font-family: "SchoolSafetyWing", system-ui, -apple-system, sans-serif;
+}

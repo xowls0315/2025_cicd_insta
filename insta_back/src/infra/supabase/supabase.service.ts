@@ -32,4 +32,27 @@ export class SupabaseService {
     const { data } = this.supabase.storage.from(this.bucket).getPublicUrl(path);
     return { path, publicUrl: data.publicUrl };
   }
+
+  async uploadFeedImage(file: Multer.File) {
+    if (!file) throw new BadRequestException('file is required');
+
+    const ext = file.originalname?.split('.').pop() ?? 'bin';
+    const path = `feeds/${crypto.randomUUID()}.${ext}`;
+
+    const { error } = await this.supabase.storage
+      .from(this.bucket)
+      .upload(path, file.buffer, { contentType: file.mimetype });
+
+    if (error) throw new BadRequestException(error.message);
+
+    const { data } = this.supabase.storage.from(this.bucket).getPublicUrl(path);
+    return { path, publicUrl: data.publicUrl };
+  }
+
+  async deleteFile(path: string) {
+    const { error } = await this.supabase.storage
+      .from(this.bucket)
+      .remove([path]);
+    if (error) throw new BadRequestException(error.message);
+  }
 }

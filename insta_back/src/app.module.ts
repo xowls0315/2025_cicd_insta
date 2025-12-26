@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { FeedsModule } from './modules/feeds/feeds.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -37,6 +38,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     }),
     UsersModule,
     AuthModule,
+    FeedsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

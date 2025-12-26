@@ -40,3 +40,24 @@ export type UpdateProfileFormData = {
   password?: string;
   file?: File | null;
 };
+
+// 피드 타입
+export type Feed = {
+  id: number;
+  photoUrl: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// 피드 생성 폼 타입
+export type CreateFeedFormData = {
+  description: string;
+  file: File | null;
+};
+
+// 피드 수정 폼 타입
+export type UpdateFeedFormData = {
+  description?: string;
+  file?: File | null;
+};
