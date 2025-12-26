@@ -5,12 +5,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { validationConfig } from './configs/validation.config';
 import { ResponseFormatInterceptor } from './common/interceptor/response-format.interceptor';
 import { AllExceptionFilter } from './common/filter/all-exception.filter';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+
   app.use(cookieParser());
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: configService.get<string>('CORS_ORIGIN') || 'http://localhost:3000',
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe(validationConfig));
