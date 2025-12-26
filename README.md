@@ -354,3 +354,56 @@ insta_back/
 5. **에러 핸들링**: 백엔드의 Exception Filter와 프론트엔드의 에러 처리 로직을 통해 사용자에게 친화적인 에러 메시지를 제공하는 방법을 익혔습니다.
 
 앞으로는 실시간 기능(댓글, 좋아요), 무한 스크롤, 이미지 최적화 등의 기능을 추가하여 더욱 완성도 높은 프로젝트로 발전시키고 싶습니다.
+
+---
+
+## 06. 실행 화면 🖼️
+
+<table>
+  <tr>
+    <th style="text-align:center;">로그인 화면</th>
+    <th style="text-align:center;">회원가입 화면</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <div style="background-color:#f5f5f5; padding:10px; border-radius:12px; display:inline-block;">
+        <img
+          width="444"
+          height="379"
+          alt="login"
+          src="https://github.com/user-attachments/assets/6aaed7e5-fac2-4e56-85d2-cf2c987336b4"
+          style="border-radius:12px;"
+        />
+      </div>
+    </td>
+    <td align="center">
+      <div style="background-color:#f5f5f5; padding:10px; border-radius:12px; display:inline-block;">
+        <img
+          width="439"
+          height="598"
+          alt="signup"
+          src="https://github.com/user-attachments/assets/28ed8617-1e54-410d-8a1e-c17966a8605e"
+          style="border-radius:12px;"
+        />
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <th colspan="2" style="text-align:center;">프로필 화면</th>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <div style="background-color:#f5f5f5; padding:16px; border-radius:16px; display:inline-block;">
+        <img
+          width="947"
+          height="901"
+          alt="profile"
+          src="https://github.com/user-attachments/assets/4c6f79e4-be4f-4321-9fad-aeeb9c9a7ff2"
+          style="border-radius:16px;"
+        />
+      </div>
+    </td>
+  </tr>
+</table>
+
+
