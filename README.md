@@ -2,7 +2,7 @@
 
 ## 01. 프로젝트 소개 📋
 
-**Instagram Clone**은 Next.js와 Nest.js를 활용하여 구현한 풀스택 소셜 미디어 애플리케이션입니다.
+**Instagram Clone**은 `Next.js`와 `Nest.js`를 활용하여 구현한 풀스택 소셜 미디어 애플리케이션입니다.
 
 ### 한 줄 요약
 
