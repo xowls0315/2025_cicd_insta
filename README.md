@@ -1,4 +1,7 @@
 # 📸 Instagram Clone Project
+- 프론트엔드 배포 링크(Vercel): https://2025-cicd-instafront.vercel.app/
+- 백엔드 배포 링크(Render): https://two025-cicd-insta-back.onrender.com/
+<br /> **=> 백엔드 배포 링크 클릭 후 프론트엔드 배포 링크 실행하기!!**
 
 ## 01. 프로젝트 소개 📋
 
