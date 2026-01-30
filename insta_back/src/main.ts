@@ -12,8 +12,18 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.use(cookieParser());
+  const corsOrigin = configService.get<string>('CORS_ORIGIN');
+  const allowedOrigins = corsOrigin
+    ? corsOrigin.split(',').map((o) => o.trim())
+    : ['http://localhost:3000'];
   app.enableCors({
-    origin: configService.get<string>('CORS_ORIGIN') || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe(validationConfig));
