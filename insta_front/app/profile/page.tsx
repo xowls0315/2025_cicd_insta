@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Skeleton from "react-loading-skeleton";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileInfo } from "@/components/profile/ProfileInfo";
@@ -75,13 +76,22 @@ export default function ProfilePage() {
   if (!me) return null;
 
   return (
-    <div className={`min-h-screen px-4 py-10 flex justify-center items-start ${BACKGROUNDS.profile}`}>
+    <div
+      className={`min-h-screen px-4 py-10 flex justify-center items-start ${BACKGROUNDS.profile}`}
+    >
       <div className="w-full max-w-[920px] rounded-2xl border border-white/60 bg-white/75 backdrop-blur-md shadow-[0_30px_80px_rgba(0,0,0,0.10)] p-6">
-        <ProfileHeader onEditClick={() => setIsEditModalOpen(true)} onLogoutClick={handleLogoutClick} />
+        <ProfileHeader
+          onEditClick={() => setIsEditModalOpen(true)}
+          onLogoutClick={handleLogoutClick}
+        />
 
         {/* profile row */}
         <div className="flex flex-row items-center gap-6">
-          <ProfileAvatar user={me} imgError={imgError} onImgError={() => setImgError(true)} />
+          <ProfileAvatar
+            user={me}
+            imgError={imgError}
+            onImgError={() => setImgError(true)}
+          />
           <ProfileInfo user={me} feedCount={feeds.length} />
         </div>
 
@@ -102,7 +112,7 @@ export default function ProfilePage() {
         {feedsLoading ? (
           <div className="grid grid-cols-3 gap-2.5">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="aspect-square rounded-2xl border border-black/10 bg-gradient-to-br from-pink-200/30 to-violet-200/30 animate-pulse" />
+              <Skeleton key={i} className="aspect-square rounded-2xl" />
             ))}
           </div>
         ) : (
@@ -116,7 +126,12 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <ProfileEditModal isOpen={isEditModalOpen} user={me} onClose={() => setIsEditModalOpen(false)} onSuccess={handleEditSuccess} />
+      <ProfileEditModal
+        isOpen={isEditModalOpen}
+        user={me}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccess={handleEditSuccess}
+      />
 
       {/* 피드 모달들 */}
       <FeedCreateModal
@@ -150,7 +165,9 @@ export default function ProfilePage() {
           setSelectedFeed(null);
         }}
         onSuccess={(updatedFeed) => {
-          setFeeds(feeds.map((f) => (f.id === updatedFeed.id ? updatedFeed : f)));
+          setFeeds(
+            feeds.map((f) => (f.id === updatedFeed.id ? updatedFeed : f)),
+          );
           setIsEditFeedModalOpen(false);
           setSelectedFeed(null);
         }}

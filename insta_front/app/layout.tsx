@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "react-loading-skeleton/dist/skeleton.css";
 
 export const metadata: Metadata = {
   title: "t.jin_01's Insta(Login/Signup/Profile)",

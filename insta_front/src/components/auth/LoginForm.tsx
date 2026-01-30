@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Skeleton from "react-loading-skeleton";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { STYLES } from "@/constants/styles";
@@ -33,22 +34,51 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton height={48} className="rounded-xl" />
+        <Skeleton height={48} className="rounded-xl" />
+        <Skeleton height={52} className="mt-5 rounded-full" />
+        <div className="mt-4 flex justify-center">
+          <Skeleton width={180} height={20} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      <Input placeholder="아이디" value={loginId} onChange={(e) => setLoginId(e.target.value)} />
-      <Input placeholder="비밀번호" type="password" value={loginPw} onChange={(e) => setLoginPw(e.target.value)} />
+      <Input
+        placeholder="아이디"
+        value={loginId}
+        onChange={(e) => setLoginId(e.target.value)}
+      />
+      <Input
+        placeholder="비밀번호"
+        type="password"
+        value={loginPw}
+        onChange={(e) => setLoginPw(e.target.value)}
+      />
 
-      <Button onClick={handleLogin} variant="primary" isLoading={isLoading} className="mt-5 w-full rounded-full py-3">
+      <Button
+        onClick={handleLogin}
+        variant="primary"
+        isLoading={false}
+        className="mt-5 w-full rounded-full py-3"
+      >
         로그인
       </Button>
 
       <div className="mt-4 text-center text-sm text-black/55">
         계정이 없나요?{" "}
-        <button onClick={onSwitchToSignup} className="font-extrabold text-fuchsia-600 cursor-pointer transition-all duration-500 hover:scale-105">
+        <button
+          onClick={onSwitchToSignup}
+          className="font-extrabold text-fuchsia-600 cursor-pointer transition-all duration-500 hover:scale-105"
+        >
           회원가입
         </button>
       </div>
     </>
   );
 };
-

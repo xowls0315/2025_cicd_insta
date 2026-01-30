@@ -26,33 +26,41 @@ export const getErrorMessage = (error: unknown): string => {
   return "알 수 없는 오류가 발생했습니다.";
 };
 
-// 토큰 관리
+// Access Token: 메모리에만 저장 (새로고침 시 사라짐, refresh 쿠키로 복구)
+let inMemoryAccessToken: string | null = null;
+
 export const tokenManager = {
   get: (): string | null => {
     if (typeof window === "undefined") return null;
-    const token = localStorage.getItem("accessToken");
-    if (!token || token === "undefined" || token === "null") {
+    if (
+      !inMemoryAccessToken ||
+      inMemoryAccessToken === "undefined" ||
+      inMemoryAccessToken === "null"
+    ) {
       return null;
     }
-    return token;
+    return inMemoryAccessToken;
   },
   set: (token: string): void => {
     if (typeof window === "undefined") return;
-    localStorage.setItem("accessToken", token);
+    inMemoryAccessToken = token;
   },
   remove: (): void => {
     if (typeof window === "undefined") return;
-    localStorage.removeItem("accessToken");
+    inMemoryAccessToken = null;
   },
 };
 
 // 인증 API
 export const authApi = {
   login: async (username: string, password: string): Promise<LoginResponse> => {
-    const res = await apiClient.post<ApiResponse<LoginResponse>>("/auth/login", {
-      username,
-      password,
-    });
+    const res = await apiClient.post<ApiResponse<LoginResponse>>(
+      "/auth/login",
+      {
+        username,
+        password,
+      },
+    );
     const accessToken = res.data?.data?.accessToken;
     if (!accessToken) {
       throw new Error("accessToken이 없습니다.");
@@ -65,7 +73,8 @@ export const authApi = {
   },
 
   refresh: async (): Promise<string> => {
-    const res = await apiClient.post<ApiResponse<LoginResponse>>("/auth/refresh");
+    const res =
+      await apiClient.post<ApiResponse<LoginResponse>>("/auth/refresh");
     const accessToken = res.data?.data?.accessToken;
     if (!accessToken) {
       throw new Error("refresh missing accessToken");
@@ -87,7 +96,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // 2. Response Interceptor: 401 에러 시 자동 토큰 갱신 및 재시도
@@ -111,10 +120,16 @@ const processQueue = (error: unknown, token: string | null = null) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
     // 401 에러이고 아직 retry하지 않은 요청인 경우
-    if (isAxiosError(error) && error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      isAxiosError(error) &&
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
       // 이미 refresh 중이면 대기
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -163,7 +178,7 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // 사용자 API
@@ -177,26 +192,21 @@ export const userApi = {
   },
 
   getMe: async (): Promise<User> => {
-    const token = tokenManager.get();
-    if (!token) {
-      throw new Error("로그인이 필요합니다.");
-    }
-
+    // 토큰이 없어도 요청 전송 → 401이면 interceptor가 refresh(쿠키) 후 재시도
     const res = await apiClient.get<ApiResponse<User>>("/users/me");
     return (res.data?.data ?? res.data) as User;
   },
 
   updateProfile: async (formData: FormData): Promise<User> => {
-    const token = tokenManager.get();
-    if (!token) {
-      throw new Error("로그인이 필요합니다.");
-    }
-
-    const res = await apiClient.patch<ApiResponse<User>>("/users/me", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+    const res = await apiClient.patch<ApiResponse<User>>(
+      "/users/me",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
-    });
+    );
     return (res.data?.data ?? res.data) as User;
   },
 };
@@ -204,11 +214,6 @@ export const userApi = {
 // 피드 API
 export const feedApi = {
   create: async (formData: FormData): Promise<Feed> => {
-    const token = tokenManager.get();
-    if (!token) {
-      throw new Error("로그인이 필요합니다.");
-    }
-
     const res = await apiClient.post<ApiResponse<Feed>>("/feeds", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -218,45 +223,29 @@ export const feedApi = {
   },
 
   getMyFeeds: async (): Promise<Feed[]> => {
-    const token = tokenManager.get();
-    if (!token) {
-      throw new Error("로그인이 필요합니다.");
-    }
-
     const res = await apiClient.get<ApiResponse<Feed[]>>("/feeds/me");
     return (res.data?.data ?? res.data ?? []) as Feed[];
   },
 
   getFeed: async (id: number): Promise<Feed> => {
-    const token = tokenManager.get();
-    if (!token) {
-      throw new Error("로그인이 필요합니다.");
-    }
-
     const res = await apiClient.get<ApiResponse<Feed>>(`/feeds/${id}`);
     return (res.data?.data ?? res.data) as Feed;
   },
 
   update: async (id: number, formData: FormData): Promise<Feed> => {
-    const token = tokenManager.get();
-    if (!token) {
-      throw new Error("로그인이 필요합니다.");
-    }
-
-    const res = await apiClient.patch<ApiResponse<Feed>>(`/feeds/${id}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+    const res = await apiClient.patch<ApiResponse<Feed>>(
+      `/feeds/${id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
-    });
+    );
     return (res.data?.data ?? res.data) as Feed;
   },
 
   delete: async (id: number): Promise<void> => {
-    const token = tokenManager.get();
-    if (!token) {
-      throw new Error("로그인이 필요합니다.");
-    }
-
     await apiClient.delete(`/feeds/${id}`);
   },
 };

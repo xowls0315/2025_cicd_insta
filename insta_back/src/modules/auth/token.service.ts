@@ -15,7 +15,10 @@ export class TokenService {
   ) {}
 
   signAccessToken(userId: number) {
-    const secret = this.config.get<string>('JWT_ACCESS_SECRET') ?? '';
+    const secret =
+      this.config.get<string>('JWT_ACCESS_SECRET') ??
+      this.config.get<string>('JWT_SECRET') ??
+      '';
     const expiresIn = (this.config.get<string>('ACCESS_EXPIRES_IN') ??
       '3m') as JwtSignOptions['expiresIn'];
 
@@ -23,7 +26,10 @@ export class TokenService {
   }
 
   signRefreshToken(userId: number) {
-    const secret = this.config.get<string>('JWT_REFRESH_SECRET') ?? '';
+    const secret =
+      this.config.get<string>('JWT_REFRESH_SECRET') ??
+      this.config.get<string>('JWT_SECRET') ??
+      '';
     const expiresIn = (this.config.get<string>('REFRESH_EXPIRES_IN') ??
       '14d') as JwtSignOptions['expiresIn'];
 
@@ -62,7 +68,10 @@ export class TokenService {
 
     try {
       payload = await this.jwt.verifyAsync(refreshToken, {
-        secret: this.config.get<string>('JWT_REFRESH_SECRET') ?? '',
+        secret:
+          this.config.get<string>('JWT_REFRESH_SECRET') ??
+          this.config.get<string>('JWT_SECRET') ??
+          '',
       });
     } catch {
       throw new UnauthorizedException('refresh token invalid');
@@ -104,7 +113,10 @@ export class TokenService {
     let payload: any;
     try {
       payload = await this.jwt.verifyAsync(refreshToken, {
-        secret: this.config.get<string>('JWT_REFRESH_SECRET') ?? '',
+        secret:
+          this.config.get<string>('JWT_REFRESH_SECRET') ??
+          this.config.get<string>('JWT_SECRET') ??
+          '',
       });
     } catch {
       // 토큰이 이미 깨져 있어도 로그아웃은 성공 처리(쿠키 삭제가 목적)

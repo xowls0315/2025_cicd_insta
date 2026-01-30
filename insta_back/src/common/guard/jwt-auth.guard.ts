@@ -25,9 +25,11 @@ export class JwtAuthGuard implements CanActivate {
 
     const token = auth.split(' ')[1];
     try {
-      const payload = await this.jwt.verifyAsync(token, {
-        secret: this.config.get<string>('JWT_ACCESS_SECRET'),
-      });
+      const secret =
+        this.config.get<string>('JWT_ACCESS_SECRET') ??
+        this.config.get<string>('JWT_SECRET');
+      if (!secret) throw new UnauthorizedException('JWT secret not configured');
+      const payload = await this.jwt.verifyAsync(token, { secret });
 
       // ✅ 핵심: payload.userId를 쓴다
       const userId = Number(payload.userId);
