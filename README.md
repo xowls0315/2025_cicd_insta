@@ -1,7 +1,8 @@
 # 📸 Instagram Clone Project
+
 - 프론트엔드 배포 링크(Vercel): https://2025-cicd-instafront.vercel.app/
 - 백엔드 배포 링크(Render): https://two025-cicd-insta-back.onrender.com/
-<br /> **=> 백엔드 배포 링크 클릭 후 프론트엔드 배포 링크 실행하기!!**
+  <br /> **=> 백엔드 배포 링크 클릭 후 프론트엔드 배포 링크 실행하기!!**
 
 ## 01. 프로젝트 소개 📋
 
@@ -17,8 +18,8 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 
 ### 해결하고자 하는 문제
 
-- **인증/인가 시스템**: JWT 기반의 Access Token과 Refresh Token을 활용한 안전한 사용자 인증
-- **토큰 만료 문제**: Axios Interceptor를 통한 자동 토큰 갱신으로 사용자 경험 개선
+- **인증/인가 시스템**: JWT 기반의 Access Token(메모리 저장)과 Refresh Token(HttpOnly 쿠키)을 활용한 안전한 사용자 인증
+- **토큰 만료·새로고침 복구**: Axios Interceptor를 통한 자동 토큰 갱신 및 401 시 쿠키 기반 refresh로 세션 복구
 - **이미지 저장**: Supabase Storage를 활용한 효율적인 이미지 관리
 - **반응형 UI**: Tailwind CSS를 활용한 모던하고 일관된 디자인 시스템
 
@@ -29,7 +30,7 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 - 🎨 **아름다운 UI/UX**: 핑크-바이올렛 그라데이션 테마의 Instagram 스타일 디자인
 - 📱 **반응형 디자인**: 다양한 화면 크기에 최적화된 레이아웃
 - 🚀 **컴포넌트 기반 아키텍처**: 재사용 가능한 컴포넌트로 유지보수성 향상
-- ⚡ **Skeleton UI**: 로딩 상태에 대한 부드러운 사용자 경험 제공
+- ⚡ **Skeleton UI**: `react-loading-skeleton`으로 로그인·프로필 로딩 시 부드러운 사용자 경험 제공
 
 ---
 
@@ -38,8 +39,8 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 ### 🔑 인증 기능
 
 - **회원가입**: 아이디, 닉네임, 비밀번호, 프로필 이미지로 계정 생성
-- **로그인**: JWT 기반 인증 (Access Token + Refresh Token)
-- **자동 토큰 갱신**: Axios Interceptor를 통한 자동 Access Token 갱신
+- **로그인**: JWT 기반 인증 (Access Token은 메모리, Refresh Token은 HttpOnly 쿠키)
+- **자동 토큰 갱신**: Axios Interceptor로 401 시 쿠키의 Refresh Token으로 Access Token 갱신 후 재시도
 - **로그아웃**: Refresh Token 무효화 및 쿠키 삭제
 
 ### 👤 프로필 관리
@@ -58,7 +59,7 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 
 ### 🎨 UI/UX 기능
 
-- **Skeleton UI**: 로딩 상태 시 스켈레톤 화면 표시
+- **Skeleton UI**: 로그인 요청 중·프로필/피드 로딩 시 `react-loading-skeleton` 스켈레톤 표시
 - **모달 시스템**: 피드 생성/수정/조회를 위한 모달 UI
 - **Hover 효과**: 인터랙티브한 버튼 및 카드 호버 효과
 - **커스텀 폰트**: SchoolSafetyWing 폰트 적용
@@ -75,6 +76,7 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 - **Styling**: Tailwind CSS 4.1.18
 - **HTTP Client**: Axios 1.13.2
 - **State Management**: React Hooks (useState, useEffect)
+- **Loading UI**: react-loading-skeleton 3.5.0
 
 ### Backend
 
@@ -100,6 +102,7 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 - **JWT**: 사용자 인증 및 세션 관리
 - **Axios Interceptors**: 자동 토큰 갱신 및 에러 핸들링
 - **Tailwind CSS**: 유틸리티 기반 CSS 프레임워크
+- **react-loading-skeleton**: 로그인·프로필 로딩 스켈레톤 UI
 
 ---
 
@@ -129,7 +132,9 @@ npm install
    `.env.local` 파일을 생성하고 백엔드 API URL을 설정하세요:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
+# 로컬 개발 시 생략 가능 (기본값: http://localhost:3001)
+# Vercel·배포 시 Render 백엔드 URL로 설정
+NEXT_PUBLIC_API_BASE=http://localhost:3001
 ```
 
 4. **개발 서버 실행**
@@ -173,26 +178,22 @@ DB_PASS=your_db_password
 DB_NAME=your_db_name
 DB_SCHEMA=insta
 
-# JWT
+# JWT (JWT_SECRET만 있어도 동작, JWT_ACCESS_SECRET/JWT_REFRESH_SECRET은 선택)
 JWT_SECRET=your_jwt_secret_key
 ACCESS_EXPIRES_IN=3m
 REFRESH_EXPIRES_IN=14d
 
 # Supabase
 SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
-SUPABASE_BUCKET=your_bucket_name
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+SUPABASE_BUCKET=photo
 
-# Cookie
+# Cookie (로컬: false, Render 등 HTTPS 배포: true)
 COOKIE_SECURE=false
 ```
 
 4. **데이터베이스 테이블 생성**
-   PostgreSQL에서 다음 테이블들을 생성하세요:
-
-- `users` 테이블 (id, username, nickname, password_hash, profile_image_url, created_at, updated_at)
-- `feeds` 테이블 (id, user_id, photo_url, description, created_at, updated_at)
-- `refresh_tokens` 테이블 (id, user_id, token, expires_at, created_at)
+   PostgreSQL에서 **05. 기타 > SQL문**에 있는 SQL을 실행하여 `users`, `feeds`, `refresh_tokens` 테이블을 생성하세요. (public 스키마 사용 시 `DB_SCHEMA=public`으로 설정)
 
 5. **서버 실행**
 
@@ -305,6 +306,7 @@ insta_back/
 ```
 
 ### SQL문
+
 ```
 -- users 테이블
 CREATE TABLE IF NOT EXISTS users (
@@ -337,12 +339,12 @@ CREATE TABLE IF NOT EXISTS feeds (
   description TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  
+
   -- 외래키 제약조건
-  CONSTRAINT feeds_user_id_fkey 
-    FOREIGN KEY (user_id) 
-    REFERENCES users(id) 
-    ON DELETE CASCADE 
+  CONSTRAINT feeds_user_id_fkey
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
     ON UPDATE CASCADE
 );
 
@@ -403,6 +405,18 @@ CREATE TRIGGER update_feeds_updated_at
 **문제**: `useMemo`가 조건부로 호출되어 React Hook 규칙 위반 경고 발생 <br />
 **원인**: `if (!isOpen || !feed) return null;` 이후에 `useMemo` 호출 <br />
 **해결**: `useMemo`를 early return 이전으로 이동하여 항상 호출되도록 수정
+
+#### 6. **로그인 시 "secretOrPrivateKey must have a value"**
+
+**문제**: 로그인 요청 시 백엔드에서 JWT secret 미설정 오류 발생 <br />
+**원인**: 코드에서 `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET`만 참조하고 `.env`에는 `JWT_SECRET`만 정의됨 <br />
+**해결**: `token.service.ts`와 `jwt-auth.guard.ts`에서 해당 키가 없을 때 `JWT_SECRET`을 폴백으로 사용하도록 수정
+
+#### 7. **로그인 성공 후 "로그인이 필요합니다" 알림**
+
+**문제**: 아이디·비밀번호로 로그인 성공 후 프로필로 이동 시 alert로 "로그인이 필요합니다." 표시 <br />
+**원인**: Access Token을 메모리에만 저장해 페이지 이동(새로고침) 시 사라짐. API 호출 전에 토큰 유무만 검사해 요청 자체를 막고 있어, 401 → refresh 재시도 흐름이 동작하지 않음 <br />
+**해결**: `userApi.getMe()` 등 인증 API에서 토큰 사전 검사를 제거. 토큰이 없어도 요청을 보내고, 401이면 interceptor가 쿠키의 Refresh Token으로 갱신 후 재시도하도록 변경
 
 ### 프로젝트 후기 💭
 
@@ -470,5 +484,3 @@ CREATE TRIGGER update_feeds_updated_at
     </td>
   </tr>
 </table>
-
-
