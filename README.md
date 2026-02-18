@@ -42,6 +42,7 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 - **로그인**: JWT 기반 인증 (Access Token은 메모리, Refresh Token은 HttpOnly 쿠키)
 - **자동 토큰 갱신**: Axios Interceptor로 401 시 쿠키의 Refresh Token으로 Access Token 갱신 후 재시도
 - **로그아웃**: Refresh Token 무효화 및 쿠키 삭제
+- **ID/PW 찾기**: 닉네임으로 가입된 아이디 조회, 아이디+닉네임으로 본인 확인 후 비밀번호 재설정 (로그인 화면 모달)
 
 ### 👤 프로필 관리
 
@@ -60,7 +61,7 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 ### 🎨 UI/UX 기능
 
 - **Skeleton UI**: 로그인 요청 중·프로필/피드 로딩 시 `react-loading-skeleton` 스켈레톤 표시
-- **모달 시스템**: 피드 생성/수정/조회를 위한 모달 UI
+- **모달 시스템**: 피드 생성/수정/조회, ID/PW 찾기 모달 UI
 - **Hover 효과**: 인터랙티브한 버튼 및 카드 호버 효과
 - **커스텀 폰트**: SchoolSafetyWing 폰트 적용
 
@@ -417,6 +418,12 @@ CREATE TRIGGER update_feeds_updated_at
 **문제**: 아이디·비밀번호로 로그인 성공 후 프로필로 이동 시 alert로 "로그인이 필요합니다." 표시 <br />
 **원인**: Access Token을 메모리에만 저장해 페이지 이동(새로고침) 시 사라짐. API 호출 전에 토큰 유무만 검사해 요청 자체를 막고 있어, 401 → refresh 재시도 흐름이 동작하지 않음 <br />
 **해결**: `userApi.getMe()` 등 인증 API에서 토큰 사전 검사를 제거. 토큰이 없어도 요청을 보내고, 401이면 interceptor가 쿠키의 Refresh Token으로 갱신 후 재시도하도록 변경
+
+#### 8. **로그인 실패 시 에러가 보이지 않고 스켈레톤에서 멈춤**
+
+**문제**: 아이디/비밀번호를 잘못 입력하고 로그인하면 스켈레톤 UI 상태로 멈추고 에러 메시지나 화면이 나타나지 않음 <br />
+**원인**: 로그인 실패(401)도 공통 response interceptor에서 "토큰 만료"로 간주해 refresh를 시도하고, refresh 실패 시 `window.location.href = "/"`로 이동하면서 페이지가 바뀌어 로딩 해제·에러 표시가 되지 않음 <br />
+**해결**: interceptor에서 `auth/login`, `auth/signup` 요청의 401은 refresh 대상에서 제외하고 즉시 `reject(error)` 처리. 로그인 폼에서 catch로 에러 메시지를 받아 alert + 폼 하단에 빨간색 에러 문구 표시, 입력 시 에러 문구 초기화
 
 ### 프로젝트 후기 💭
 

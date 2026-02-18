@@ -124,6 +124,15 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
+    // 로그인/회원가입 요청의 401은 refresh 대상 제외 → 폼에서 에러 메시지 표시
+    const isAuthRequest =
+      typeof originalRequest.url === "string" &&
+      (originalRequest.url.includes("auth/login") ||
+        originalRequest.url.includes("auth/signup"));
+    if (isAuthRequest && isAxiosError(error) && error.response?.status === 401) {
+      return Promise.reject(error);
+    }
+
     // 401 에러이고 아직 retry하지 않은 요청인 경우
     if (
       isAxiosError(error) &&
@@ -208,6 +217,30 @@ export const userApi = {
       },
     );
     return (res.data?.data ?? res.data) as User;
+  },
+
+  /** 닉네임으로 가입된 아이디(들) 조회 */
+  findUsername: async (nickname: string): Promise<{ usernames: string[] }> => {
+    const res = await apiClient.post<ApiResponse<{ usernames: string[] }>>(
+      "/users/find-username",
+      { nickname: nickname.trim() },
+    );
+    return (res.data?.data ?? res.data) as { usernames: string[] };
+  },
+
+  /** 아이디 + 닉네임으로 본인 확인 후 비밀번호 재설정 */
+  resetPassword: async (params: {
+    username: string;
+    nickname: string;
+    newPassword: string;
+    newPasswordConfirm: string;
+  }): Promise<void> => {
+    await apiClient.post("/users/reset-password", {
+      username: params.username.trim(),
+      nickname: params.nickname.trim(),
+      newPassword: params.newPassword,
+      newPasswordConfirm: params.newPasswordConfirm,
+    });
   },
 };
 

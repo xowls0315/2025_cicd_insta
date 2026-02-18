@@ -17,6 +17,8 @@ import type { Request } from 'express';
 import { UsersService } from './users.service';
 import { SignupDto } from './dto/signup.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { FindUsernameDto } from './dto/find-username.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
 import type { Multer } from 'multer';
 
@@ -28,6 +30,16 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async signup(@UploadedFile() file: Multer.File, @Body() dto: SignupDto) {
     return this.usersService.signup(dto, file);
+  }
+
+  @Post('find-username')
+  async findUsername(@Body() dto: FindUsernameDto) {
+    return this.usersService.findUsernameByNickname(dto);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.usersService.resetPassword(dto);
   }
 
   @Get('me')

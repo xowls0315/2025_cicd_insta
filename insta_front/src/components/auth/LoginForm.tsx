@@ -4,7 +4,7 @@ import { useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { STYLES } from "@/constants/styles";
+import { FindIdPwModal } from "@/components/auth/FindIdPwModal";
 import { authApi, tokenManager, getErrorMessage } from "@/lib/api";
 
 interface LoginFormProps {
@@ -15,6 +15,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
   const [loginId, setLoginId] = useState("");
   const [loginPw, setLoginPw] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isFindIdPwOpen, setIsFindIdPwOpen] = useState(false);
 
   const handleLogin = async () => {
     if (!loginId.trim() || !loginPw.trim()) {
@@ -22,13 +24,16 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
       return;
     }
 
+    setErrorMessage(null);
     setIsLoading(true);
     try {
       const { accessToken } = await authApi.login(loginId, loginPw);
       tokenManager.set(accessToken);
       window.location.href = "/profile";
     } catch (error) {
-      alert(getErrorMessage(error));
+      const message = getErrorMessage(error);
+      setErrorMessage(message);
+      alert(message);
     } finally {
       setIsLoading(false);
     }
@@ -52,13 +57,19 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
       <Input
         placeholder="아이디"
         value={loginId}
-        onChange={(e) => setLoginId(e.target.value)}
+        onChange={(e) => {
+          setLoginId(e.target.value);
+          if (errorMessage) setErrorMessage(null);
+        }}
       />
       <Input
         placeholder="비밀번호"
         type="password"
         value={loginPw}
-        onChange={(e) => setLoginPw(e.target.value)}
+        onChange={(e) => {
+          setLoginPw(e.target.value);
+          if (errorMessage) setErrorMessage(null);
+        }}
       />
 
       <Button
@@ -70,6 +81,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
         로그인
       </Button>
 
+      {errorMessage && (
+        <p className="mt-3 text-center text-sm text-red-600 font-medium">
+          {errorMessage}
+        </p>
+      )}
+
       <div className="mt-4 text-center text-sm text-black/55">
         계정이 없나요?{" "}
         <button
@@ -79,6 +96,19 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
           회원가입
         </button>
       </div>
+      <div className="mt-2 text-center text-sm text-black/55">
+        <button
+          onClick={() => setIsFindIdPwOpen(true)}
+          className="font-extrabold text-fuchsia-600 cursor-pointer transition-all duration-500 hover:scale-105"
+        >
+          ID / PW 찾기
+        </button>
+      </div>
+
+      <FindIdPwModal
+        isOpen={isFindIdPwOpen}
+        onClose={() => setIsFindIdPwOpen(false)}
+      />
     </>
   );
 };

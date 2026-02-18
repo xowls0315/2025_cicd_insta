@@ -5,6 +5,8 @@ import { User } from './entities/user.entity';
 import { SupabaseService } from 'src/infra/supabase/supabase.service';
 import { SignupDto } from './dto/signup.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { FindUsernameDto } from './dto/find-username.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import * as bcrypt from 'bcrypt';
 import type { Multer } from 'multer';
 
@@ -61,6 +63,37 @@ export class UsersService {
 
   async findByUsername(username: string) {
     return this.usersRepo.findOne({ where: { username } });
+  }
+
+  /** 닉네임으로 가입된 아이디(들) 조회 - 동일 닉네임이 여러 명일 수 있음 */
+  async findUsernameByNickname(dto: FindUsernameDto) {
+    const users = await this.usersRepo.find({
+      where: { nickname: dto.nickname.trim() },
+      select: ['username'],
+    });
+    if (!users.length) {
+      throw new BadRequestException('해당 닉네임으로 가입된 회원이 없습니다.');
+    }
+    return { usernames: users.map((u) => u.username) };
+  }
+
+  /** 아이디 + 닉네임으로 본인 확인 후 비밀번호 재설정 */
+  async resetPassword(dto: ResetPasswordDto) {
+    if (dto.newPassword !== dto.newPasswordConfirm) {
+      throw new BadRequestException('새 비밀번호가 일치하지 않습니다.');
+    }
+
+    const user = await this.usersRepo.findOne({
+      where: { username: dto.username.trim(), nickname: dto.nickname.trim() },
+    });
+    if (!user) {
+      throw new BadRequestException('아이디와 닉네임이 일치하는 회원이 없습니다.');
+    }
+
+    user.passwordHash = await bcrypt.hash(dto.newPassword, 10);
+    await this.usersRepo.save(user);
+
+    return { ok: true };
   }
 
   async updateMe(userId: number, dto: UpdateProfileDto, file?: Multer.File) {
