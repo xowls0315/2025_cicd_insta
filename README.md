@@ -453,13 +453,7 @@ CREATE TRIGGER update_feeds_updated_at
   <tr>
     <td align="center">
       <div style="background-color:#f5f5f5; padding:10px; border-radius:12px; display:inline-block;">
-        <img
-          width="444"
-          height="379"
-          alt="login"
-          src="https://github.com/user-attachments/assets/6aaed7e5-fac2-4e56-85d2-cf2c987336b4"
-          style="border-radius:12px;"
-        />
+        <img width="502" height="465" alt="image" src="https://github.com/user-attachments/assets/b3e30dca-38bc-4efe-98ec-abec2c613b56" />
       </div>
     </td>
     <td align="center">
