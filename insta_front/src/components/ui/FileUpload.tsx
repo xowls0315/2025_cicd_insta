@@ -23,16 +23,16 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         className="hidden"
         accept={accept}
       />
-      <div className="w-full rounded-xl border-2 border-dashed border-fuchsia-300 bg-gradient-to-br from-pink-50 to-violet-50 px-4 py-5 text-center transition-all duration-300 hover:border-fuchsia-500 hover:bg-gradient-to-br hover:from-pink-100 hover:to-violet-100 hover:scale-[1.02]">
+      <div className="w-full rounded-lg sm:rounded-xl border-2 border-dashed border-fuchsia-300 bg-gradient-to-br from-pink-50 to-violet-50 px-3 py-4 sm:px-4 sm:py-5 text-center transition-all duration-300 hover:border-fuchsia-500 hover:bg-gradient-to-br hover:from-pink-100 hover:to-violet-100 hover:scale-[1.02]">
         {file ? (
-          <div className="flex flex-col items-center gap-2">
-            <div className="text-sm font-extrabold text-fuchsia-600">✓ 파일 선택됨</div>
-            <div className="text-xs text-black/60 truncate max-w-full">{file.name}</div>
+          <div className="flex flex-col items-center gap-1.5 sm:gap-2">
+            <div className="text-xs sm:text-sm font-extrabold text-fuchsia-600">✓ 파일 선택됨</div>
+            <div className="text-[10px] sm:text-xs text-black/60 truncate max-w-full">{file.name}</div>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2">
-            <div className="text-base font-extrabold text-fuchsia-600">📷 {label}</div>
-            <div className="text-xs text-black/50">
+          <div className="flex flex-col items-center gap-1.5 sm:gap-2">
+            <div className="text-sm sm:text-base font-extrabold text-fuchsia-600">📷 {label}</div>
+            <div className="text-[10px] sm:text-xs text-black/50">
               클릭하여 이미지 파일을 선택하세요{optional ? " (선택사항)" : ""}
             </div>
           </div>

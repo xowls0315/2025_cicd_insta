@@ -16,9 +16,9 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, imgError, on
   const showImage = !!user.profileImageUrl && !imgError;
 
   return (
-    <div className="shrink-0">
+    <div className="shrink-0 mx-auto sm:mx-0">
       <div
-        className="relative w-50 h-50 rounded-full p-[3px]
+        className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full p-[3px]
         bg-[conic-gradient(from_180deg,#ff2fb3,#7b2cff,#ff7a18,#ff2fb3)]"
       >
         <div className="w-full h-full rounded-full bg-white p-1">
@@ -32,7 +32,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, imgError, on
           ) : (
             <div
               className="w-full h-full rounded-full grid place-items-center
-              bg-gradient-to-br from-pink-500/15 to-violet-600/15 text-[40px] font-black text-zinc-800"
+              bg-gradient-to-br from-pink-500/15 to-violet-600/15 text-2xl sm:text-3xl md:text-4xl font-black text-zinc-800"
             >
               {avatarFallback}
             </div>

@@ -68,15 +68,15 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, user
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-[0_30px_80px_rgba(0,0,0,0.20)] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto" onClick={onClose}>
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl bg-white shadow-[0_30px_80px_rgba(0,0,0,0.20)] my-auto" onClick={(e) => e.stopPropagation()}>
         {/* 모달 헤더 */}
-        <div className="px-6 py-5 text-white font-extrabold text-2xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-violet-600">
+        <div className="px-4 py-4 sm:px-6 sm:py-5 text-white font-extrabold text-xl sm:text-2xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-violet-600 shrink-0">
           프로필 수정
         </div>
 
         {/* 모달 내용 */}
-        <div className="px-6 pt-5 pb-6">
+        <div className="px-4 pt-4 pb-5 sm:px-6 sm:pt-5 sm:pb-6">
           <Input
             placeholder="아이디"
             value={form.username ?? ""}
@@ -102,11 +102,11 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, user
           />
 
           {/* 버튼들 */}
-          <div className="mt-6 flex gap-3">
-            <Button onClick={onClose} variant="secondary" className="flex-1">
+          <div className="mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button onClick={onClose} variant="secondary" className="flex-1 w-full sm:w-auto">
               취소
             </Button>
-            <Button onClick={handleUpdate} variant="primary" isLoading={isUpdating} className="flex-1">
+            <Button onClick={handleUpdate} variant="primary" isLoading={isUpdating} className="flex-1 w-full sm:w-auto">
               {isUpdating ? "수정 중..." : "수정 완료"}
             </Button>
           </div>

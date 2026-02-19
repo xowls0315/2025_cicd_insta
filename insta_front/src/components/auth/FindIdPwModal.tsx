@@ -90,25 +90,25 @@ export const FindIdPwModal: React.FC<FindIdPwModalProps> = ({ isOpen, onClose })
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto"
       onClick={handleClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-white shadow-[0_30px_80px_rgba(0,0,0,0.20)] overflow-hidden"
+        className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl bg-white shadow-[0_30px_80px_rgba(0,0,0,0.20)] my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div
-          className={`px-6 py-5 text-white font-extrabold text-2xl ${STYLES.gradient}`}
+          className={`px-4 py-4 sm:px-6 sm:py-5 text-white font-extrabold text-xl sm:text-2xl shrink-0 ${STYLES.gradient}`}
         >
           ID / PW 찾기
         </div>
 
         {/* 탭 */}
-        <div className="flex border-b border-black/10">
+        <div className="flex border-b border-black/10 shrink-0">
           <button
             type="button"
             onClick={() => setTab("id")}
-            className={`flex-1 py-3 text-sm font-extrabold ${
+            className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold ${
               tab === "id"
                 ? "text-fuchsia-600 border-b-2 border-fuchsia-600"
                 : "text-black/50"
@@ -119,7 +119,7 @@ export const FindIdPwModal: React.FC<FindIdPwModalProps> = ({ isOpen, onClose })
           <button
             type="button"
             onClick={() => setTab("pw")}
-            className={`flex-1 py-3 text-sm font-extrabold ${
+            className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold ${
               tab === "pw"
                 ? "text-fuchsia-600 border-b-2 border-fuchsia-600"
                 : "text-black/50"
@@ -129,7 +129,7 @@ export const FindIdPwModal: React.FC<FindIdPwModalProps> = ({ isOpen, onClose })
           </button>
         </div>
 
-        <div className="px-6 py-5">
+        <div className="px-4 py-4 sm:px-6 sm:py-5">
           {tab === "id" && (
             <div className="space-y-4">
               <p className="text-sm text-black/65">
@@ -202,7 +202,7 @@ export const FindIdPwModal: React.FC<FindIdPwModalProps> = ({ isOpen, onClose })
           )}
         </div>
 
-        <div className="px-6 pb-5 text-center">
+        <div className="px-4 pb-4 sm:px-6 sm:pb-5 text-center shrink-0">
           <button
             type="button"
             onClick={handleClose}

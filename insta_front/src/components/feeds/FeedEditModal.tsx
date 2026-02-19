@@ -84,13 +84,13 @@ export const FeedEditModal: React.FC<FeedEditModalProps> = ({ isOpen, feed, onCl
   if (!isOpen || !feed) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={handleClose}>
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-[0_30px_80px_rgba(0,0,0,0.20)] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        <div className="px-6 py-5 text-white font-extrabold text-2xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-violet-600">피드 수정</div>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto" onClick={handleClose}>
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl bg-white shadow-[0_30px_80px_rgba(0,0,0,0.20)] my-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="px-4 py-4 sm:px-6 sm:py-5 text-white font-extrabold text-xl sm:text-2xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-violet-600 shrink-0">피드 수정</div>
 
-        <div className="px-6 pt-5 pb-6">
-          <div className="mb-4">
-            <img src={feed.photoUrl} alt="feed" className="w-full rounded-xl object-cover max-h-[300px]" />
+        <div className="px-4 pt-4 pb-5 sm:px-6 sm:pt-5 sm:pb-6">
+          <div className="mb-3 sm:mb-4">
+            <img src={feed.photoUrl} alt="feed" className="w-full rounded-lg sm:rounded-xl object-cover max-h-[200px] sm:max-h-[300px]" />
           </div>
 
           <FileUpload file={file} onFileChange={setFile} label="사진 변경" optional />
@@ -103,14 +103,14 @@ export const FeedEditModal: React.FC<FeedEditModalProps> = ({ isOpen, feed, onCl
             maxLength={2000}
           />
 
-          <div className="mt-6 flex gap-3">
-            <Button onClick={handleDelete} variant="secondary" isLoading={isDeleting} className="flex-1 bg-red-100 text-red-700 hover:bg-red-200">
+          <div className="mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button onClick={handleDelete} variant="secondary" isLoading={isDeleting} className="flex-1 w-full sm:w-auto bg-red-100 text-red-700 hover:bg-red-200">
               {isDeleting ? "삭제 중..." : "삭제"}
             </Button>
-            <Button onClick={handleClose} variant="secondary" className="flex-1">
+            <Button onClick={handleClose} variant="secondary" className="flex-1 w-full sm:w-auto">
               취소
             </Button>
-            <Button onClick={handleUpdate} variant="primary" isLoading={isUpdating} className="flex-1">
+            <Button onClick={handleUpdate} variant="primary" isLoading={isUpdating} className="flex-1 w-full sm:w-auto">
               {isUpdating ? "수정 중..." : "수정 완료"}
             </Button>
           </div>

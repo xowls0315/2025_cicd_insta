@@ -7,9 +7,10 @@ export const Input: React.FC<InputProps> = (props) => {
     <input
       {...props}
       className="
-        mt-4 w-full
+        mt-3 sm:mt-4 w-full
         border-0 border-b border-black/15
-        px-1 py-3
+        px-1 py-2.5 sm:py-3
+        text-base
         outline-none
         placeholder:text-black/35
         focus:border-fuchsia-500

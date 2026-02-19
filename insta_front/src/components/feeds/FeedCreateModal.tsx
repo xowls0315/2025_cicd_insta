@@ -54,11 +54,11 @@ export const FeedCreateModal: React.FC<FeedCreateModalProps> = ({ isOpen, onClos
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={handleClose}>
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-[0_30px_80px_rgba(0,0,0,0.20)] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        <div className="px-6 py-5 text-white font-extrabold text-2xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-violet-600">새 피드 작성</div>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto" onClick={handleClose}>
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl bg-white shadow-[0_30px_80px_rgba(0,0,0,0.20)] my-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="px-4 py-4 sm:px-6 sm:py-5 text-white font-extrabold text-xl sm:text-2xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-violet-600 shrink-0">새 피드 작성</div>
 
-        <div className="px-6 pt-5 pb-6">
+        <div className="px-4 pt-4 pb-5 sm:px-6 sm:pt-5 sm:pb-6">
           <FileUpload file={file} onFileChange={setFile} label="사진 선택" />
 
           <textarea
@@ -69,11 +69,11 @@ export const FeedCreateModal: React.FC<FeedCreateModalProps> = ({ isOpen, onClos
             maxLength={2000}
           />
 
-          <div className="mt-6 flex gap-3">
-            <Button onClick={handleClose} variant="secondary" className="flex-1">
+          <div className="mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button onClick={handleClose} variant="secondary" className="flex-1 w-full sm:w-auto">
               취소
             </Button>
-            <Button onClick={handleCreate} variant="primary" isLoading={isCreating} className="flex-1">
+            <Button onClick={handleCreate} variant="primary" isLoading={isCreating} className="flex-1 w-full sm:w-auto">
               {isCreating ? "작성 중..." : "작성 완료"}
             </Button>
           </div>

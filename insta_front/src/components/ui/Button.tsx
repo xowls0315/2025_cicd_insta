@@ -14,7 +14,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseClasses = "font-extrabold rounded-xl px-4 py-2.5 transition-all duration-500";
+  const baseClasses = "font-extrabold rounded-xl px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base transition-all duration-500";
   const variantClasses = {
     primary: `${STYLES.gradient} text-white ${STYLES.hoverScale} shadow-lg`,
     secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200",
