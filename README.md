@@ -89,6 +89,7 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 - **File Upload**: Multer 2.0.2
 - **Password Hashing**: bcrypt 6.0.0
 - **Validation**: class-validator 0.14.3, class-transformer 0.5.1
+- **API 문서**: Swagger (@nestjs/swagger) - `/api` 경로에서 Swagger UI 제공
 
 ### Infrastructure
 
@@ -177,7 +178,7 @@ DB_PORT=5432
 DB_USER=your_db_user
 DB_PASS=your_db_password
 DB_NAME=your_db_name
-DB_SCHEMA=insta
+DB_SCHEMA=public
 
 # JWT (JWT_SECRET만 있어도 동작, JWT_ACCESS_SECRET/JWT_REFRESH_SECRET은 선택)
 JWT_SECRET=your_jwt_secret_key
@@ -191,10 +192,14 @@ SUPABASE_BUCKET=photo
 
 # Cookie (로컬: false, Render 등 HTTPS 배포: true)
 COOKIE_SECURE=false
+
+# CORS (배포 시 프론트엔드 URL 추가, 쉼표로 여러 개 가능)
+# CORS_ORIGIN=https://2025-cicd-instafront.vercel.app,http://localhost:3000
 ```
 
 4. **데이터베이스 테이블 생성**
-   PostgreSQL에서 **05. 기타 > SQL문**에 있는 SQL을 실행하여 `users`, `feeds`, `refresh_tokens` 테이블을 생성하세요. (public 스키마 사용 시 `DB_SCHEMA=public`으로 설정)
+   DBeaver에서 PostgreSQL 연결 후 **`insta_back/database/final.sql`** 스크립트를 실행하세요. 테이블은 public 스키마에 생성됩니다.  
+   (public 스키마 사용 시 `.env`의 `DB_SCHEMA=public`으로 설정하고, 엔티티의 `schema: 'insta'`를 `schema: 'public'`으로 변경)
 
 5. **서버 실행**
 
@@ -207,7 +212,8 @@ npm run build
 npm run start:prod
 ```
 
-서버는 기본적으로 `http://localhost:3001`에서 실행됩니다.
+서버는 기본적으로 `http://localhost:3001`에서 실행됩니다.  
+**Swagger UI**: `http://localhost:3001/api` 에서 API 문서 확인 가능
 
 ---
 
@@ -247,6 +253,8 @@ insta_front/
 
 ```
 insta_back/
+├── database/
+│   └── final.sql          # 최초 DB 세팅용 SQL (DBeaver에서 실행)
 ├── src/
 │   ├── modules/
 │   │   ├── auth/            # 인증 모듈
@@ -308,6 +316,8 @@ insta_back/
 
 ### SQL문
 
+> 전체 스크립트는 `insta_back/database/final.sql` 참고 (public 스키마, DBeaver 실행용)
+
 ```
 -- users 테이블
 CREATE TABLE IF NOT EXISTS users (
@@ -350,7 +360,7 @@ CREATE TABLE IF NOT EXISTS feeds (
 );
 
 -- 인덱스 생성
-CREATE INDEX IF NOT EXISTS feeds_user_id_fkey ON feeds(user_id);
+CREATE INDEX IF NOT EXISTS feeds_user_id_idx ON feeds(user_id);
 CREATE INDEX IF NOT EXISTS feeds_created_at_idx ON feeds(created_at DESC);
 
 -- updated_at 자동 업데이트 트리거 함수 (선택사항)
@@ -362,7 +372,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 트리거 생성
+-- 트리거 생성 (users, feeds 공통)
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
+CREATE TRIGGER update_users_updated_at
+  BEFORE UPDATE ON users
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_feeds_updated_at ON feeds;
 CREATE TRIGGER update_feeds_updated_at
   BEFORE UPDATE ON feeds
   FOR EACH ROW
