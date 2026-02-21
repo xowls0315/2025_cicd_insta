@@ -23,6 +23,7 @@ async function bootstrap() {
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', name: 'Authorization', in: 'header' },
       'access-token',
     )
+    .addTag('app', '앱 (루트, 헬스체크)')
     .addTag('auth', '인증 (로그인, 로그아웃, 토큰 갱신)')
     .addTag('users', '사용자 (회원가입, 프로필, ID/PW 찾기)')
     .addTag('feeds', '피드 (CRUD)')

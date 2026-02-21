@@ -215,6 +215,11 @@ npm run start:prod
 서버는 기본적으로 `http://localhost:3001`에서 실행됩니다.  
 **Swagger UI**: `http://localhost:3001/api` 에서 API 문서 확인 가능
 
+### Render + Supabase 배포 시 ENETUNREACH 오류
+
+Render에서 Supabase Direct 연결 사용 시 IPv6 제한으로 `ENETUNREACH` 오류가 발생할 수 있습니다.  
+**Supabase Session Pooler**를 사용하세요. → `insta_back/RENDER_SUPABASE.md` 참고
+
 ---
 
 ## 05. 기타 📚

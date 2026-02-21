@@ -48,6 +48,9 @@ export class UsersController {
   }
 
   @Post('reset-password')
+  @ApiOperation({ summary: '비밀번호 재설정', description: '아이디+닉네임으로 본인 확인 후 비밀번호 재설정' })
+  @ApiResponse({ status: 201, description: '비밀번호 재설정 완료' })
+  @ApiResponse({ status: 400, description: '본인 확인 실패 또는 유효성 검사 실패' })
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.usersService.resetPassword(dto);
   }
