@@ -6,12 +6,14 @@ import {
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -42,6 +44,9 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOperation({ summary: '로그인', description: '아이디/비밀번호로 로그인. Access Token 반환, Refresh Token은 HttpOnly 쿠키로 설정' })
+  @ApiResponse({ status: 201, description: '로그인 성공', schema: { properties: { data: { properties: { accessToken: { type: 'string' } } } } } })
+  @ApiResponse({ status: 401, description: '아이디/비밀번호 불일치' })
   async login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -52,6 +57,9 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @ApiOperation({ summary: '토큰 갱신', description: '쿠키의 Refresh Token으로 Access Token 갱신' })
+  @ApiResponse({ status: 201, description: '갱신 성공', schema: { properties: { data: { properties: { accessToken: { type: 'string' } } } } } })
+  @ApiResponse({ status: 401, description: 'Refresh Token 없음/만료/유효하지 않음' })
   async refresh(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -65,6 +73,8 @@ export class AuthController {
   }
 
   @Post('logout')
+  @ApiOperation({ summary: '로그아웃', description: 'Refresh Token 무효화 및 쿠키 삭제' })
+  @ApiResponse({ status: 201, description: '로그아웃 성공', schema: { properties: { data: { properties: { ok: { type: 'boolean' } } } } } })
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const token = req.cookies?.refreshToken;
     if (token) await this.authService.logout(token);
