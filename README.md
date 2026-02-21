@@ -94,13 +94,15 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 ### Infrastructure
 
 - **Image Storage**: Supabase Storage
-- **Database**: PostgreSQL (Render 또는 로컬)
+- **Database**: Supabase PostgreSQL (insta 스키마)
+- **Backend Hosting**: Render Web Service
+- **Uptime Monitoring**: UptimeRobot (5분 핑으로 Render sleep 방지)
 - **Environment**: Node.js
 
 ### 주요 라이브러리 및 프레임워크
 
-- **TypeORM**: 데이터베이스 ORM으로 PostgreSQL과 연동
-- **Supabase**: 이미지 파일 저장 및 관리
+- **TypeORM**: 데이터베이스 ORM으로 Supabase PostgreSQL과 연동
+- **Supabase**: DB(PostgreSQL) + 이미지 Storage
 - **JWT**: 사용자 인증 및 세션 관리
 - **Axios Interceptors**: 자동 토큰 갱신 및 에러 핸들링
 - **Tailwind CSS**: 유틸리티 기반 CSS 프레임워크
@@ -113,8 +115,7 @@ Instagram의 핵심 기능을 구현한 풀스택 웹 애플리케이션 (회원
 ### 사전 요구사항
 
 - Node.js 18 이상
-- PostgreSQL 데이터베이스
-- Supabase 계정 (이미지 저장용)
+- Supabase 계정 (DB + 이미지 저장)
 
 ### Frontend 설정 (insta_front)
 
@@ -172,20 +173,22 @@ npm install
    `.env` 파일을 생성하고 다음 내용을 추가하세요:
 
 ```env
-# Database
-DB_HOST=your_db_host
+# Database (Supabase PostgreSQL)
+# 로컬: Direct 연결 (db.xxx.supabase.co, postgres) 또는 Session Pooler 사용
+# Render 배포: Session Pooler 필수 → insta_back/RENDER_SUPABASE.md 참고
+DB_HOST=db.xxx.supabase.co
 DB_PORT=5432
-DB_USER=your_db_user
+DB_USER=postgres
 DB_PASS=your_db_password
-DB_NAME=your_db_name
-DB_SCHEMA=public
+DB_NAME=postgres
+DB_SCHEMA=insta
 
-# JWT (JWT_SECRET만 있어도 동작, JWT_ACCESS_SECRET/JWT_REFRESH_SECRET은 선택)
+# JWT
 JWT_SECRET=your_jwt_secret_key
 ACCESS_EXPIRES_IN=3m
 REFRESH_EXPIRES_IN=14d
 
-# Supabase
+# Supabase (Storage)
 SUPABASE_URL=your_supabase_url
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 SUPABASE_BUCKET=photo
@@ -198,8 +201,10 @@ COOKIE_SECURE=false
 ```
 
 4. **데이터베이스 테이블 생성**
-   DBeaver에서 PostgreSQL 연결 후 **`insta_back/database/final.sql`** 스크립트를 실행하세요. 테이블은 public 스키마에 생성됩니다.  
-   (public 스키마 사용 시 `.env`의 `DB_SCHEMA=public`으로 설정하고, 엔티티의 `schema: 'insta'`를 `schema: 'public'`으로 변경)
+   **Supabase SQL Editor**: 프로젝트 선택 → SQL Editor → New query → `insta_back/database/final.sql` 내용 붙여넣기 → Run  
+   **DBeaver**: Supabase 연결 후 `insta_back/database/final.sql` 스크립트 실행  
+
+   테이블은 `insta` 스키마에 생성됩니다.
 
 5. **서버 실행**
 
@@ -213,12 +218,13 @@ npm run start:prod
 ```
 
 서버는 기본적으로 `http://localhost:3001`에서 실행됩니다.  
-**Swagger UI**: `http://localhost:3001/api` 에서 API 문서 확인 가능
+**Swagger UI**: `http://localhost:3001/api` 에서 API 문서 확인 가능  
+**Health Check**: `http://localhost:3001/health` (UptimeRobot 모니터링용)
 
-### Render + Supabase 배포 시 ENETUNREACH 오류
+### Render 배포 시 참고
 
-Render에서 Supabase Direct 연결 사용 시 IPv6 제한으로 `ENETUNREACH` 오류가 발생할 수 있습니다.  
-**Supabase Session Pooler**를 사용하세요. → `insta_back/RENDER_SUPABASE.md` 참고
+- **Supabase 연결 오류 (ENETUNREACH, Tenant or user not found)**: `insta_back/RENDER_SUPABASE.md` 참고
+- **UptimeRobot 설정**: 5분 간격으로 `/health` URL 모니터링 → Render sleep 방지
 
 ---
 
@@ -259,7 +265,8 @@ insta_front/
 ```
 insta_back/
 ├── database/
-│   └── final.sql          # 최초 DB 세팅용 SQL (DBeaver에서 실행)
+│   └── final.sql          # 최초 DB 세팅용 SQL (Supabase SQL Editor 또는 DBeaver)
+├── RENDER_SUPABASE.md     # Render + Supabase 배포 트러블슈팅
 ├── src/
 │   ├── modules/
 │   │   ├── auth/            # 인증 모듈
@@ -321,11 +328,12 @@ insta_back/
 
 ### SQL문
 
-> 전체 스크립트는 `insta_back/database/final.sql` 참고 (public 스키마, DBeaver 실행용)
+> 전체 스크립트는 `insta_back/database/final.sql` 참고 (insta 스키마, Supabase SQL Editor / DBeaver용)
 
 ```
--- users 테이블
-CREATE TABLE IF NOT EXISTS users (
+-- insta 스키마에 users 테이블
+CREATE SCHEMA IF NOT EXISTS insta;
+CREATE TABLE IF NOT EXISTS insta.users (
   id            BIGSERIAL PRIMARY KEY,
   username      VARCHAR(30)  NOT NULL UNIQUE,     -- "아이디"
   nickname      VARCHAR(30)  NOT NULL,
@@ -335,20 +343,20 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- refresh_tokens 테이블 (한 유저 여러 로그인 허용하려면 여러개 저장 가능)
-CREATE TABLE IF NOT EXISTS refresh_tokens (
+-- refresh_tokens 테이블
+CREATE TABLE IF NOT EXISTS insta.refresh_tokens (
   id            BIGSERIAL PRIMARY KEY,
-  user_id       BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id       BIGINT NOT NULL REFERENCES insta.users(id) ON DELETE CASCADE,
   token_hash    VARCHAR(255) NOT NULL,
   is_revoked    BOOLEAN NOT NULL DEFAULT FALSE,
   expires_at    TIMESTAMPTZ NOT NULL,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id);
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON refresh_tokens(expires_at);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON insta.refresh_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON insta.refresh_tokens(expires_at);
 
-CREATE TABLE IF NOT EXISTS feeds (
+CREATE TABLE IF NOT EXISTS insta.feeds (
   id BIGSERIAL PRIMARY KEY,
   user_id BIGINT NOT NULL,
   photo_url TEXT NOT NULL,
@@ -359,17 +367,16 @@ CREATE TABLE IF NOT EXISTS feeds (
   -- 외래키 제약조건
   CONSTRAINT feeds_user_id_fkey
     FOREIGN KEY (user_id)
-    REFERENCES users(id)
+    REFERENCES insta.users(id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
 
--- 인덱스 생성
-CREATE INDEX IF NOT EXISTS feeds_user_id_idx ON feeds(user_id);
-CREATE INDEX IF NOT EXISTS feeds_created_at_idx ON feeds(created_at DESC);
+CREATE INDEX IF NOT EXISTS feeds_user_id_idx ON insta.feeds(user_id);
+CREATE INDEX IF NOT EXISTS feeds_created_at_idx ON insta.feeds(created_at DESC);
 
--- updated_at 자동 업데이트 트리거 함수 (선택사항)
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+-- updated_at 자동 업데이트 트리거 함수
+CREATE OR REPLACE FUNCTION insta.update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -377,18 +384,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 트리거 생성 (users, feeds 공통)
-DROP TRIGGER IF EXISTS update_users_updated_at ON users;
+-- 트리거 생성
+DROP TRIGGER IF EXISTS update_users_updated_at ON insta.users;
 CREATE TRIGGER update_users_updated_at
-  BEFORE UPDATE ON users
+  BEFORE UPDATE ON insta.users
   FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+  EXECUTE FUNCTION insta.update_updated_at_column();
 
-DROP TRIGGER IF EXISTS update_feeds_updated_at ON feeds;
+DROP TRIGGER IF EXISTS update_feeds_updated_at ON insta.feeds;
 CREATE TRIGGER update_feeds_updated_at
-  BEFORE UPDATE ON feeds
+  BEFORE UPDATE ON insta.feeds
   FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+  EXECUTE FUNCTION insta.update_updated_at_column();
 ```
 
 **테이블 관계:**
@@ -446,6 +453,12 @@ CREATE TRIGGER update_feeds_updated_at
 **문제**: 아이디/비밀번호를 잘못 입력하고 로그인하면 스켈레톤 UI 상태로 멈추고 에러 메시지나 화면이 나타나지 않음 <br />
 **원인**: 로그인 실패(401)도 공통 response interceptor에서 "토큰 만료"로 간주해 refresh를 시도하고, refresh 실패 시 `window.location.href = "/"`로 이동하면서 페이지가 바뀌어 로딩 해제·에러 표시가 되지 않음 <br />
 **해결**: interceptor에서 `auth/login`, `auth/signup` 요청의 401은 refresh 대상에서 제외하고 즉시 `reject(error)` 처리. 로그인 폼에서 catch로 에러 메시지를 받아 alert + 폼 하단에 빨간색 에러 문구 표시, 입력 시 에러 문구 초기화
+
+#### 9. **Render 배포 시 Supabase 연결 오류 (ENETUNREACH, Tenant or user not found)**
+
+**문제**: Render에서 배포 시 DB 연결 실패 <br />
+**원인**: Render 무료 플랫폼은 IPv6 아웃바운드가 제한되어 Supabase Direct 연결(`db.xxx.supabase.co`) 사용 시 `ENETUNREACH` 발생. Session Pooler 사용 시 `DB_USER` 형식 오류로 `Tenant or user not found` 발생 <br />
+**해결**: `insta_back/RENDER_SUPABASE.md` 참고. Supabase Session Pooler 사용 (Host: `aws-0-[region].pooler.supabase.com`, User: `postgres.[프로젝트ID]`)
 
 ### 프로젝트 후기 💭
 
